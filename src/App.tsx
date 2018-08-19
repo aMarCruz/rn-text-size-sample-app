@@ -38,6 +38,7 @@ type State = {
     width?: number,
     allowFontScaling?: boolean,
     textBreakStrategy?: TSTextBreakStrategy,
+    usePreciseWidth: boolean,
   },
   specs: TSFontSpecs,
   info?: TSMeasureResult,
@@ -84,6 +85,7 @@ export default class MeasureApp extends React.Component<Props, State> {
         width: TEXT_WIDTH,
         allowFontScaling: true,
         textBreakStrategy: undefined,
+        usePreciseWidth: false,
       },
       specs: TEST_FONT,
       fontInfo: null,
@@ -168,6 +170,9 @@ export default class MeasureApp extends React.Component<Props, State> {
     if (!isNaN(width)) {
       this.doMeasure({ width }, true)
     }
+  }
+  setUsePreciseWidth = (usePreciseWidth: boolean) => {
+    this.doMeasure({ usePreciseWidth }, true)
   }
 
   promptForText = () => {
@@ -346,6 +351,16 @@ export default class MeasureApp extends React.Component<Props, State> {
                 style={styles.switchBox}
                 value={specs.includeFontPadding}
                 onValueChange={this.setIncludeFontPadding}
+              />
+            </View>) : null
+          }
+          {ANDROID ? (
+            <View style={styles.row}>
+              <Text style={styles.prompt}>usePreciseWidth:</Text>
+              <Switch
+                style={styles.switchBox}
+                value={parms.usePreciseWidth}
+                onValueChange={this.setUsePreciseWidth}
               />
             </View>) : null
           }
