@@ -1,6 +1,6 @@
 # rnTextSize Tester
 
-Test interactively the behavior of rnTextSize.
+Test interactively the behavior of [react-native-text-size](https://github.com/aMarCruz/react-native-text-size).
 
 This app is using React Native 0.52.0, the minimal supported version, and Typescript 2.9.<br>If you want to test it with a newer version of RN, edit the package.json changing to the desired versions of RN and React.
 
