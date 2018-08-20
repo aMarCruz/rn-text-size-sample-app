@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.3] - 2018-08-20
+
+### Fixed
+- Fix errors in ins-text-size.js
+
 ## [1.0.2] - 2018-08-20
 
 ### Added

@@ -45,17 +45,17 @@ fs.mkdtemp(path.join(os.tmpdir(), 'rnts'), (err, folder) => {
     console.error(err.message || err)
     process.exit(1)
   }
+  const outFile = path.join(folder, `rnts${Date.now().toString(16)}.tgz`)
 
   removePreviousVersion()
     .then(() => {
-      const outFile = path.join(folder, `rnts${Date.now().toString(16)}.tgz`)
       console.log(`Packing ${packageName}...`)
       return execFile(packageManager, `pack ${packagePath} -f ${outFile}`, { cwd: packagePath })
     })
     .then((info) => {
       console.log(info.stdout)
       console.log('Installing, please wait...')
-      return execFile(packageManager, `add ${outFile} --force --no-lockfile -P`)
+      return execFile(packageManager, `add ${outFile} --force --no-lockfile`)
     })
     .then((info) => {
       console.log(info.stdout)
