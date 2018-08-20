@@ -224,8 +224,10 @@ export default class MeasureApp extends React.Component<Props, State> {
       textBreakStrategy,
     } = parms
 
+    const hasLastLineWidth = !!info && ('lastLineWidth' in info)
     let sizes, infoStat, posStyle
     if (info) {
+      const lastLineStr = hasLastLineWidth ? formatNumber(info.lastLineWidth) : 'undefined'
       sizes = {
         height: info.height,
         width: info.width,
@@ -234,10 +236,9 @@ export default class MeasureApp extends React.Component<Props, State> {
       }
       posStyle = { left: info.lastLineWidth, top: TEXT_TOP + info.height }
       infoStat = `TextSize height ${formatNumber(info.height)}, width ${formatNumber(
-        info.width)}\n  lastLineWidth ${formatNumber(info.lastLineWidth)}, lines: ${info.lineCount}`
+        info.width)}\n  lastLineWidth ${lastLineStr}, lines: ${info.lineCount}`
     } else {
       sizes = { width: -1 }
-      posStyle = { left: 10, top: 50 }
       infoStat = 'waiting for text-size...'
     }
 
@@ -388,7 +389,7 @@ export default class MeasureApp extends React.Component<Props, State> {
               style={[styles.sample, specs, sampleStyle]}
               onLayout={this.onLayout}>{parms.text}</Text>
 
-            <View style={[styles.lastLineWidthMark, posStyle]} />
+            {hasLastLineWidth && <View style={[styles.lastLineWidthMark, posStyle]} />}
           </View>
 
         </ScrollView>
@@ -414,7 +415,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     minHeight: IOS ? 56 : 40,
-    borderTopWidth: StyleSheet.hairlineWidth,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: IOS ? '#8E8E93' : '#CCC',
   },
   lastRow: {
