@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.2] - 2018-08-20
+
+### Added
+- Link to react-native-text-size
+
+### Changed
+- Hide last line mark if `lastLintWidth` is not defined in the result (`usePreciseWidth:false`)
+
 ## [1.0.1] - 2018-08-19
 
 ### Added
