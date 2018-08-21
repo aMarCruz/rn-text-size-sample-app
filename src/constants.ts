@@ -1,5 +1,5 @@
 import { Platform, NativeModules } from 'react-native'
-import TextSize from 'react-native-text-size'
+import { getStatusBarHeight, isIphoneX } from 'react-native-iphone-x-helper'
 
 const iOS = Platform.OS === 'ios'
 
@@ -12,14 +12,14 @@ export const titleColor = iOS ? '#333333' : '#000000de'
 
 export const TOPBAR_HEIGHT = iOS ? 44 : 56
 // when translucent statusbar
-export const STATUSBAR_HEIGHT = iOS ? 20 : Platform.Version >= 21 ? 24 : 0
+export const STATUSBAR_HEIGHT = isIphoneX() ? 0 : getStatusBarHeight()
 
 export const defaultFontSize = iOS ? 17 : 16
-export const fontSizeButton = TextSize.FontSize.button
-export const fontSizeCaption = TextSize.FontSize.smallSystem
-export const fontSizeInput = TextSize.FontSize.label
-export const fontSizePrimaryText = TextSize.FontSize.label
-export const fontSizeSecondaryText = TextSize.FontSize.system
+export const fontSizeButton = iOS ? 17 : 14
+export const fontSizeCaption = iOS ? 13 : 10
+export const fontSizeInput = iOS ? 17 : 16
+export const fontSizePrimaryText = iOS ? 17 : 16
+export const fontSizeSecondaryText = iOS ? 15 : 14
 export const fontSizePageTitle = iOS ? 17 : 20
 
 const rnVer = ((): { major: number, minor: number, patch: number } => {

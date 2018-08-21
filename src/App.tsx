@@ -193,7 +193,7 @@ export default class MeasureApp extends React.Component<Props, State> {
       cancelable: true,
       defaultValue: String(this.state.parms.width),
       placeholder: 'Width restriction or 0 for none',
-      type: IOS ? 'default' : 'numeric',
+      type: IOS ? undefined : 'numeric',
     })
   }
 
@@ -368,17 +368,14 @@ export default class MeasureApp extends React.Component<Props, State> {
               />
             </View>) : null
           }
-          {ANDROID ? (
-            <View style={styles.row}>
-              <Text style={styles.prompt}>usePreciseWidth:</Text>
-              <Switch
-                style={styles.switchBox}
-                value={parms.usePreciseWidth}
-                onValueChange={this.setUsePreciseWidth}
-              />
-            </View>) : null
-          }
-
+          <View style={styles.row}>
+            <Text style={styles.prompt}>usePreciseWidth:</Text>
+            <Switch
+              style={styles.switchBox}
+              value={parms.usePreciseWidth}
+              onValueChange={this.setUsePreciseWidth}
+            />
+          </View>
           <View style={styles.lastRow}>
             <Text style={styles.statusText}>{layoutStat}</Text>
             <Text style={styles.statusText}>{infoStat}</Text>

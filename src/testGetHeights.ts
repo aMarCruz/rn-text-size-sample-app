@@ -1,5 +1,7 @@
 import TextSize, { TSFontSpecs, TSTextBreakStrategy } from 'react-native-text-size'
 
+const MAX_ELEMS = 5000
+
 const srcText = [
   'First',
   'Fugiat sunt id eiusmod anim elit sint veniam consequat enim labore sit ea.',
@@ -12,7 +14,7 @@ const srcText = [
   'Nisi non do voluptate magna anim incididunt.',
   'Culpa minim anim nostrud et Lorem excepteur commodo officia anim et ad ullamco consequat. \n Quis magna non deserunt laborum adipisicing\nculpa laborum.',
   'Tempor\nculpa\nid\nminim\n.',
-  'The second string is slightly bigger ƒƒ \n' +
+  'The second string is slightly bigger ƒƒ \n',
   ' \n',
   'Bacon ⌛ ⌨ ☄ 🤘 ipsum dolor 12345 amet 67890 capicola filet mignon flank venison ball tip pancetta cupim tenderloin bacon beef shank.',
   'The end.',
@@ -26,12 +28,13 @@ type Parms = {
   usePreciseWidth: boolean,
 }
 
-const text = ((arr: string[], times: number) => {
-  for (let i = 0; i < times; i++) {
+const text = ((arr: string[], len: number) => {
+  while (arr.length < len) {
     arr = arr.concat(arr)
   }
+  arr.length = len
   return arr
-})(srcText, 8)
+})(srcText, MAX_ELEMS)
 
 export function testFlatHeights(specs: TSFontSpecs, parms: Parms) {
   const { width, allowFontScaling, textBreakStrategy } = parms
@@ -68,6 +71,6 @@ export function testFlatHeights(specs: TSFontSpecs, parms: Parms) {
           console.log(`Diferencia en cadena ${i} - flatHeights: ${heights[i]}, measure: ${result[i].height}`)
         }
       }
-    })
-  })
+    }).catch(console.error)
+  }).catch(console.error)
 }

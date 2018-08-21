@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import { primaryColor, fontSizePageTitle, TOPBAR_HEIGHT, titleColor, fontSizePrimaryText } from './constants'
+import { primaryColor, fontSizePageTitle, TOPBAR_HEIGHT, titleColor, fontSizePrimaryText, borderColor, STATUSBAR_HEIGHT } from './constants'
 
 // typings
 import { TopAppBarAction, TopAppBarProps } from './TopAppBar'
@@ -77,9 +77,11 @@ class TopAppBar extends React.Component<Props> {
 const styles = StyleSheet.create({
   navBarContainer: {
     alignSelf: 'stretch',
-    paddingTop: 20,
-    height: 20 + TOPBAR_HEIGHT,
+    paddingTop: STATUSBAR_HEIGHT,
+    height: STATUSBAR_HEIGHT + TOPBAR_HEIGHT,
     backgroundColor: 'white',
+    borderBottomColor: borderColor,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   navBar: {
     flexDirection: 'row',
