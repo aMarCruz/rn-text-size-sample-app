@@ -30,6 +30,8 @@ import { FontInfo } from './FontInfo'
 import { Button } from './Button'
 import { fontSizeCaption, fontSizeSecondaryText, fontSizeInput, reactNativeXNumber } from './constants'
 
+import { testFlatHeights } from './testGetHeights'
+
 type Props = {}
 type State = {
   fonts: Array<string | undefined>,
@@ -50,7 +52,6 @@ const IOS = Platform.OS === 'ios' && Platform.Version || undefined
 const ANDROID = Platform.OS === 'android' && Platform.Version || undefined
 
 const winDims = Dimensions.get('window')
-const IS_SMALL = winDims.width <= 360
 const TEXT_TOP = 0
 const TEXT_LEFT = 14
 const TEXT_WIDTH = Math.min(274, winDims.width - TEXT_LEFT * 2)
@@ -147,7 +148,11 @@ export default class MeasureApp extends React.Component<Props, State> {
     this.doMeasure({ fontSize: isNaN(fs) ? undefined : fs })
   }
   setLetterSpacing = (ev: any) => {
-    const fs = parseFloat(ev.nativeEvent.text)
+    let text: string = ev.nativeEvent.text
+    if (text[0] === '0' && text.length > 0) {
+      text = '-' + text.slice(1)
+    }
+    const fs = parseFloat(text)
     this.doMeasure({ letterSpacing: isNaN(fs) ? undefined : fs })
   }
   setIncludeFontPadding = (includeFontPadding: boolean) => {
@@ -163,6 +168,7 @@ export default class MeasureApp extends React.Component<Props, State> {
     this.doMeasure({ textBreakStrategy }, true)
   }
   setText = (text: string) => {
+    text = text.replace(/\\n/g, '\n')
     this.doMeasure({ text }, true)
   }
   setWidth = (text: string) => {
@@ -189,6 +195,11 @@ export default class MeasureApp extends React.Component<Props, State> {
       placeholder: 'Width restriction or 0 for none',
       type: IOS ? 'default' : 'numeric',
     })
+  }
+
+  doTestHeights = () => {
+    const { specs, parms } = this.state
+    testFlatHeights(specs, parms)
   }
 
   showFontInfo = () => {
@@ -227,7 +238,7 @@ export default class MeasureApp extends React.Component<Props, State> {
     const hasLastLineWidth = !!info && ('lastLineWidth' in info)
     let sizes, infoStat, posStyle
     if (info) {
-      const lastLineStr = hasLastLineWidth ? formatNumber(info.lastLineWidth) : 'undefined'
+      const lastLineStr = hasLastLineWidth ? formatNumber(info.lastLineWidth!) : 'undefined'
       sizes = {
         height: info.height,
         width: info.width,
@@ -259,6 +270,7 @@ export default class MeasureApp extends React.Component<Props, State> {
         <TopAppBar title="rnTextSize Tester" />
 
         <ScrollView style={styles.scrollArea}>
+          <Text onLayout={(e) => console.log('LAYOUT: ', e.nativeEvent.layout)}></Text>
 
           <View style={styles.row}>
             <Text style={styles.prompt}>Font:</Text>
@@ -319,6 +331,7 @@ export default class MeasureApp extends React.Component<Props, State> {
               ref="letterSpacingInput"
               style={styles.numeric}
               autoCapitalize="none"
+              autoCorrect={false}
               keyboardType={keyboardType}
               placeholder="spacing"
               defaultValue={specs.letterSpacing ? String(specs.letterSpacing) : ''}
@@ -372,9 +385,10 @@ export default class MeasureApp extends React.Component<Props, State> {
           </View>
 
           <View style={styles.buttonBar}>
-            <Button outline={!IOS} text={IS_SMALL ? 'Text' : 'Set Text'} onPress={this.promptForText} />
-            <Button outline={!IOS} text={IS_SMALL ? 'Width' : 'Set Width'} onPress={this.promptForWidth} />
-            <Button outline={!IOS} text="Info..." onPress={this.showFontInfo} />
+            <Button outline={!IOS} text="Text" onPress={this.promptForText} />
+            <Button outline={!IOS} text="Width" onPress={this.promptForWidth} />
+            <Button outline={!IOS} text="Info" onPress={this.showFontInfo} />
+            <Button outline={!IOS} text="Test" onPress={this.doTestHeights} />
           </View>
 
           {/*
@@ -435,7 +449,7 @@ const styles = StyleSheet.create({
     fontSize: fontSizeCaption,
   },
   sample: {
-    flexWrap: 'wrap',
+    //flexWrap: 'wrap',
     top: TEXT_TOP,
     left: 0,
     maxWidth: TEXT_WIDTH,
