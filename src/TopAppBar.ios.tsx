@@ -5,7 +5,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import { primaryColor, fontSizePageTitle, TOPBAR_HEIGHT, titleColor, fontSizePrimaryText, borderColor, STATUSBAR_HEIGHT } from './constants'
+import {
+  borderColor,
+  fontSizePageTitle,
+  fontSizePrimaryText,
+  primaryColor,
+  titleColor,
+  TOPBAR_HEIGHT,
+} from './constants'
 
 // typings
 import { TopAppBarAction, TopAppBarProps } from './TopAppBar'
@@ -15,6 +22,7 @@ const HITSLOP = { top: 6, right: 4, bottom: 6, left: 4 }
 const _noop = () => {}
 
 class TopAppBar extends React.Component<Props> {
+
   renderTitle() {
     const { title, titleColor } = this.props
     if (!title) {
@@ -48,6 +56,7 @@ class TopAppBar extends React.Component<Props> {
         <View style={style}>
           <Text
             numberOfLines={1}
+            allowFontScaling={false}
             style={styles.btnText}
           >{button.title}</Text>
         </View>
@@ -77,8 +86,7 @@ class TopAppBar extends React.Component<Props> {
 const styles = StyleSheet.create({
   navBarContainer: {
     alignSelf: 'stretch',
-    paddingTop: STATUSBAR_HEIGHT,
-    height: STATUSBAR_HEIGHT + TOPBAR_HEIGHT,
+    height: TOPBAR_HEIGHT,
     backgroundColor: 'white',
     borderBottomColor: borderColor,
     borderBottomWidth: StyleSheet.hairlineWidth,

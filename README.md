@@ -2,17 +2,7 @@
 
 Test interactively the behavior of [react-native-text-size](https://github.com/aMarCruz/react-native-text-size).
 
-This app is using React Native 0.52.0, the minimal supported version, and Typescript 2.9.<br>If you want to test it with a newer version of RN, edit the package.json changing to the desired versions of RN and React.
-
-These are some of the supported ones and the version of React for which it was designed:
-
-React Native | React  | Notes
------------- | ------ | ------------
-0.56.0       | 16.4.1 | change "babel-preset-react-native" to "^5" as well
-0.55.4       | 16.3.1 | my favorite on aug'2018
-0.54.4       | 16.3.1 | why not the 0.55?
-0.53.3       | 16.2.0 | avoid this
-0.52.3       | 16.2.0 | this sample is pre-comfigured for this, do not use in new Apps
+This app is using React Native 0.52.0, the minimal supported version, and Typescript 2.9.<br>If you want to test it with a newer version of RN, ~~edit the package.json changing to the desired versions of RN and React~~. Sorry, it is not so easy on iOS.
 
 ### Run It
 
@@ -26,7 +16,7 @@ react-native run-android
 # ...or run-ios
 ```
 
-The package.json is configured to run the development version of rnTextSize, if you want try a local version please use `yarn link` or the supplied ins-text-size.js after yarn and before linking the lib:
+The package.json is configured to run the development version of rnTextSize, if you want try a local version, remove react-native-text-size from the package.json then use `yarn link` or the supplied ins-text-size.js after executing yarn and before linking the lib:
 
 ```bash
 node ./ins-text-size <path-to-your-local-copy-of-react-native-text-size>

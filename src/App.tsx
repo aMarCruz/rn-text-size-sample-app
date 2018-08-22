@@ -28,7 +28,7 @@ import { CrossPicker as Picker } from './CrossPicker'
 import { TopAppBar } from './TopAppBar'
 import { FontInfo } from './FontInfo'
 import { Button } from './Button'
-import { fontSizeCaption, fontSizeSecondaryText, fontSizeInput, reactNativeXNumber } from './constants'
+import { fontSizeCaption, fontSizeSecondaryText, fontSizeInput, reactNativeXNumber, borderColor } from './constants'
 
 import { testFlatHeights } from './testGetHeights'
 
@@ -95,7 +95,6 @@ export default class MeasureApp extends React.Component<Props, State> {
     TextSize.specsForTextStyles()
       .then((specs) => { console.log('specsForTextStyles:', specs) })
       .catch(console.error)
-    console.log('TextSize.FontSize:', TextSize.FontSize)
   }
 
   componentDidMount () {
@@ -259,9 +258,13 @@ export default class MeasureApp extends React.Component<Props, State> {
     const keyboardType = ANDROID && reactNativeXNumber <= 56 ? 'numeric' : 'decimal-pad'
 
     // The change of color will redraw the sample text and raise a new onLayout event
-    const sampleStyle = {
-      color: specs.includeFontPadding ? 'black' : '#222',
+    const sampleBoxStyle = {
+      width: parms.width,
       maxWidth: parms.width,
+    }
+    const sampleTextStyle = {
+      ...specs,
+      color: specs.includeFontPadding ? 'black' : '#222',
     }
 
     return (
@@ -394,11 +397,13 @@ export default class MeasureApp extends React.Component<Props, State> {
           <View>
             {sizes.width > 0 && <View style={[styles.result, sizes]} />}
 
-            <Text
-              allowFontScaling={allowFontScaling}
-              textBreakStrategy={textBreakStrategy}
-              style={[styles.sample, specs, sampleStyle]}
-              onLayout={this.onLayout}>{parms.text}</Text>
+            <View style={[styles.sampleBox, sampleBoxStyle]}>
+              <Text
+                allowFontScaling={allowFontScaling}
+                textBreakStrategy={textBreakStrategy}
+                style={[styles.sampleText, sampleTextStyle]}
+                onLayout={this.onLayout}>{parms.text}</Text>
+            </View>
 
             {hasLastLineWidth && <View style={[styles.lastLineWidthMark, posStyle]} />}
           </View>
@@ -425,13 +430,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minHeight: IOS ? 56 : 40,
+    minHeight: IOS ? 43 : 40,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: IOS ? '#8E8E93' : '#CCC',
+    borderBottomColor: borderColor,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'transparent',
   },
   lastRow: {
     justifyContent: 'space-around',
-    minHeight: 44,
+    minHeight: 43,
     paddingTop: 8,
     paddingBottom: 12,
   },
@@ -445,12 +452,12 @@ const styles = StyleSheet.create({
     fontFamily: IOS ? 'Courier' : 'monospace',
     fontSize: fontSizeCaption,
   },
-  sample: {
-    //flexWrap: 'wrap',
+  sampleBox: {
     top: TEXT_TOP,
     left: 0,
-    maxWidth: TEXT_WIDTH,
     marginBottom: 40,
+  },
+  sampleText: {
     backgroundColor: 'rgba(255,0,0,0.25)',
   },
   result: {

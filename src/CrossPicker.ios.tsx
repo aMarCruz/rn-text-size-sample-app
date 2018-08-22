@@ -1,7 +1,7 @@
 import React from 'react'
 import { ActionSheetIOS, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { polyfill } from 'react-lifecycles-compat'
-import { defaultFontSize } from './constants'
+import { defaultFontSize, borderColor } from './constants'
 
 // typings
 import { PickerOptions, PickerItemValue } from './CrossPicker'
@@ -94,21 +94,19 @@ class CrossPicker extends React.PureComponent<PickerOptions, State> {
 const styles = StyleSheet.create({
   outerBox: {
     flexGrow: 1,
+    justifyContent: 'center',
   },
   innerBox: {
     flexDirection: 'row',
-    alignSelf: 'stretch',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 4,
-  },
+},
   textButton: {
-    alignSelf: 'flex-start',
+    fontSize: defaultFontSize,
   },
   downArrow: {
-    alignSelf: 'flex-end',
     fontSize: defaultFontSize,
-    color: 'black',
+    color: borderColor,
   },
 })
 

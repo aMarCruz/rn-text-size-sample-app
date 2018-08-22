@@ -8,7 +8,7 @@ export const primaryColor = iOS ? '#0076FF' : '#3F51B5'
 export const primaryDarkColor = '#002984'
 export const primaryTextColor = '#FFFFFF'
 export const borderColor = iOS ? '#8E8E93' : '#00000030'
-export const titleColor = iOS ? '#333333' : '#000000de'
+export const titleColor = iOS ? '#000000' : '#000000de'
 
 export const TOPBAR_HEIGHT = iOS ? 44 : 56
 // when translucent statusbar
