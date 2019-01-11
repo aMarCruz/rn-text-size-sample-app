@@ -1,6 +1,7 @@
+import { Alert } from 'react-native'
 import TextSize, { TSFontSpecs, TSTextBreakStrategy } from 'react-native-text-size'
 
-const MAX_ELEMS = 5000
+const MAX_ELEMS = 1000
 
 const srcText = [
   'First',
@@ -45,32 +46,34 @@ export function testFlatHeights(specs: TSFontSpecs, parms: Parms) {
     allowFontScaling,
     textBreakStrategy,
   }
-  const dt = Date.now()
 
-  TextSize.flatHeights(params).then((heights) => {
-    const ms = Date.now() - dt;
-    console.log(`flatHeights finished measuring ${text.length} elements in ${ms} ms. Testing measure now...`)
+  // eslint-disable-line no-var
+  var ms1 = 0
+  var dt = Date.now()
 
-    const params2 = {
-      ...specs,
-      text: '',
-      width,
-      allowFontScaling,
-      textBreakStrategy,
-      usePreciseWidth: false,
-    }
-    const dt2 = Date.now()
-    const promises = text.map((tx) => TextSize.measure({ ...params2, text: tx }))
+  return TextSize.flatHeights(params)
+    .then(() => {
+      ms1 = Date.now() - dt
 
-    Promise.all(promises).then((result) => {
-      const ms2 = Date.now() - dt2;
-      console.log(`measure() finished measuring ${result.length} elements in ${ms2} ms.`)
-
-      for (let i = 0; i < srcText.length; i++) {
-        if (result[i].height !== heights[i]) {
-          console.log(`Diferencia en cadena ${i} - flatHeights: ${heights[i]}, measure: ${result[i].height}`)
-        }
+      const params2 = {
+        ...specs,
+        text: '',
+        width,
+        allowFontScaling,
+        textBreakStrategy,
+        usePreciseWidth: false,
       }
-    }).catch(console.error)
-  }).catch(console.error)
+      dt = Date.now()
+      return Promise.all(
+        text.map((tx) => TextSize.measure({ ...params2, text: tx }))
+      )
+    })
+    .then(() => {
+      const ms2 = Date.now() - dt
+
+      Alert.alert('flatHeights vs measure',
+        `Finished test with ${text.length} strings.\nflatHeights: ${ms1}ms\nmeasure: ${ms2}ms.`)
+    }).catch(
+      console.error
+    )
 }

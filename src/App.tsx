@@ -1,6 +1,7 @@
 /* eslint max-len:0 */
 import React from 'react'
 import {
+  ActivityIndicator,
   Dimensions,
   Platform,
   SafeAreaView,
@@ -15,22 +16,22 @@ import {
 } from 'react-native'
 import TextSize, {
   // typings
-  TSMeasureResult,
   TSFontInfo,
-  TSTextBreakStrategy,
   TSFontSpecs,
   TSFontStyle,
   TSFontVariant,
   TSFontWeight,
+  TSMeasureResult,
+  TSTextBreakStrategy,
 } from 'react-native-text-size'
 import alertPrompt from 'react-native-prompt-android'
 import { CrossPicker as Picker } from './CrossPicker'
 import { TopAppBar } from './TopAppBar'
 import { FontInfo } from './FontInfo'
 import { Button } from './Button'
-import { fontSizeCaption, fontSizeSecondaryText, fontSizeInput, reactNativeXNumber, borderColor } from './constants'
+import { fontSizeCaption, fontSizeSecondaryText, fontSizeInput, borderColor } from './constants'
 
-import { testFlatHeights } from './testGetHeights'
+import { testFlatHeights } from './testFlatHeights'
 
 type Props = {}
 type State = {
@@ -41,15 +42,23 @@ type State = {
     allowFontScaling?: boolean,
     textBreakStrategy?: TSTextBreakStrategy,
     usePreciseWidth: boolean,
+    lineInfoForLine: number | undefined,
   },
   specs: TSFontSpecs,
   info?: TSMeasureResult,
   layout?: { width: number, height: number },
   fontInfo: TSFontInfo | null,
+  testing: boolean,
 }
 
 const IOS = Platform.OS === 'ios' && Platform.Version || undefined
 const ANDROID = Platform.OS === 'android' && Platform.Version || undefined
+
+const fontWeightValues = ANDROID ? [undefined, 'normal', 'bold'] : [
+  undefined,
+  'normal', 'bold',
+  '100', '200', '300', '400', '500', '600', '700', '800', '900',
+]
 
 const winDims = Dimensions.get('window')
 const TEXT_TOP = 0
@@ -65,6 +74,7 @@ const TEST_FONT: TSFontSpecs = {
   includeFontPadding: true,
   letterSpacing: undefined,
 }
+
 const TEXT_STR = 'This is a first string\n' +
 'The second string is slightly bigger ƒƒ \n' +
 'Bacon ⌛ ⌨ ☄ 🤘 ipsum dolor 12345 amet 67890 capicola filet mignon flank venison ball tip pancetta cupim tenderloin bacon beef shank.'
@@ -87,9 +97,11 @@ export default class MeasureApp extends React.Component<Props, State> {
         allowFontScaling: true,
         textBreakStrategy: undefined,
         usePreciseWidth: false,
+        lineInfoForLine: undefined,
       },
       specs: TEST_FONT,
       fontInfo: null,
+      testing: false,
     }
 
     TextSize.specsForTextStyles()
@@ -114,8 +126,7 @@ export default class MeasureApp extends React.Component<Props, State> {
   }
 
   displayResult (info: TSMeasureResult) {
-    console.log(`TextSize info - height: ${info.height}, width: ${
-      info.width}, lastLineWidth: ${info.lastLineWidth}, lineCount: ${info.lineCount}`)
+    console.log('TextSize info:', info)
   }
 
   doMeasure (prop: Partial<TSFontSpecs> | Partial<State['parms']>, rootProp?: boolean) {
@@ -143,16 +154,20 @@ export default class MeasureApp extends React.Component<Props, State> {
     this.doMeasure({ fontWeight: fontWeight || undefined })
   }
   setFontSize = (ev: any) => {
-    const fs = parseFloat(ev.nativeEvent.text)
-    this.doMeasure({ fontSize: isNaN(fs) ? undefined : fs })
+    const num = parseFloat(ev.nativeEvent.text)
+    this.doMeasure({ fontSize: isNaN(num) ? undefined : num })
   }
   setLetterSpacing = (ev: any) => {
-    let text: string = ev.nativeEvent.text
-    if (text[0] === '0' && text.length > 0) {
-      text = '-' + text.slice(1)
-    }
-    const fs = parseFloat(text)
-    this.doMeasure({ letterSpacing: isNaN(fs) ? undefined : fs })
+    const num = parseFloat(ev.nativeEvent.text)
+    this.doMeasure({ letterSpacing: isNaN(num) ? undefined : num })
+  }
+  setLineInfoForLine = (ev: any) => {
+    const num = parseInt(ev.nativeEvent.text, 10)
+    this.doMeasure({ lineInfoForLine: isNaN(num) ? undefined : num }, true)
+  }
+  setWidth = (ev: any) => {
+    const width = parseFloat(ev.nativeEvent.text) || 0
+    this.doMeasure({ width }, true)
   }
   setIncludeFontPadding = (includeFontPadding: boolean) => {
     this.doMeasure({ includeFontPadding })
@@ -170,12 +185,6 @@ export default class MeasureApp extends React.Component<Props, State> {
     text = text.replace(/\\n/g, '\n')
     this.doMeasure({ text }, true)
   }
-  setWidth = (text: string) => {
-    const width = parseFloat(text)
-    if (!isNaN(width)) {
-      this.doMeasure({ width }, true)
-    }
-  }
   setUsePreciseWidth = (usePreciseWidth: boolean) => {
     this.doMeasure({ usePreciseWidth }, true)
   }
@@ -187,18 +196,13 @@ export default class MeasureApp extends React.Component<Props, State> {
       placeholder: 'Enter the text to measure',
     })
   }
-  promptForWidth = () => {
-    alertPrompt('Maximum Width', undefined, this.setWidth, {
-      cancelable: true,
-      defaultValue: String(this.state.parms.width),
-      placeholder: 'Width restriction or 0 for none',
-      type: IOS ? undefined : 'numeric',
-    })
-  }
 
   doTestHeights = () => {
     const { specs, parms } = this.state
-    testFlatHeights(specs, parms)
+    this.setState({ testing: true }, () => {
+      testFlatHeights(specs, parms)
+        .then(() => { this.setState({ testing: false }) })
+    })
   }
 
   showFontInfo = () => {
@@ -228,9 +232,11 @@ export default class MeasureApp extends React.Component<Props, State> {
       fonts,
       fontInfo,
       layout,
+      testing,
     } = this.state
     const {
       allowFontScaling,
+      lineInfoForLine,
       textBreakStrategy,
     } = parms
 
@@ -247,6 +253,11 @@ export default class MeasureApp extends React.Component<Props, State> {
       posStyle = { left: info.lastLineWidth, top: TEXT_TOP + info.height }
       infoStat = `TextSize height ${formatNumber(info.height)}, width ${formatNumber(
         info.width)}\n  lastLineWidth ${lastLineStr}, lines: ${info.lineCount}`
+      if (info.lineInfo) {
+        const lf = info.lineInfo
+        infoStat += `\nlineInfo for line# ${lf.line}: width: ${
+          lf.width}\n  bottom: ${lf.bottom} start: ${lf.start}, end: ${lf.end}`
+      }
     } else {
       sizes = { width: -1 }
       infoStat = 'waiting for text-size...'
@@ -254,8 +265,6 @@ export default class MeasureApp extends React.Component<Props, State> {
 
     const layoutStat = layout ? `onLayout height ${
       formatNumber(layout.height)}, width ${formatNumber(layout.width)} ` : ' '
-
-    const keyboardType = ANDROID && reactNativeXNumber <= 56 ? 'numeric' : 'decimal-pad'
 
     // The change of color will redraw the sample text and raise a new onLayout event
     const sampleBoxStyle = {
@@ -313,16 +322,15 @@ export default class MeasureApp extends React.Component<Props, State> {
               style={styles.pickerBox}
               selectedValue={specs.fontWeight}
               onValueChange={this.setFontWeight}
-              items={[undefined, 'normal', 'bold']}
+              items={fontWeightValues}
             />
           </View>
           <View style={styles.row}>
             <Text style={styles.prompt}>fontSize:</Text>
             <TextInput
-              ref="fontSizeInput"
               style={styles.numeric}
               autoCapitalize="none"
-              keyboardType={keyboardType}
+              keyboardType="decimal-pad"
               placeholder="enter size"
               defaultValue={specs.fontSize && specs.fontSize > 0 ? String(specs.fontSize) : ''}
               onEndEditing={this.setFontSize}
@@ -331,16 +339,16 @@ export default class MeasureApp extends React.Component<Props, State> {
           <View style={styles.row}>
             <Text style={styles.prompt}>letterSpacing:</Text>
             <TextInput
-              ref="letterSpacingInput"
               style={styles.numeric}
               autoCapitalize="none"
               autoCorrect={false}
-              keyboardType={keyboardType}
+              keyboardType="number-pad"
               placeholder="spacing"
               defaultValue={specs.letterSpacing ? String(specs.letterSpacing) : ''}
               onEndEditing={this.setLetterSpacing}
             />
           </View>
+
           {ANDROID ? (
             <View style={styles.row}>
               <Text style={styles.prompt}>textBreakStrategy:</Text>
@@ -371,6 +379,7 @@ export default class MeasureApp extends React.Component<Props, State> {
               />
             </View>) : null
           }
+
           <View style={styles.row}>
             <Text style={styles.prompt}>usePreciseWidth:</Text>
             <Switch
@@ -379,16 +388,37 @@ export default class MeasureApp extends React.Component<Props, State> {
               onValueChange={this.setUsePreciseWidth}
             />
           </View>
+          <View style={styles.row}>
+            <Text style={styles.prompt}>width (0 for none):</Text>
+            <TextInput
+              style={styles.numeric}
+              autoCapitalize="none"
+              keyboardType="decimal-pad"
+              placeholder="width"
+              defaultValue={parms.width ? String(parms.width) : '0'}
+              onEndEditing={this.setWidth}
+            />
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.prompt}>lineInfoForLine:</Text>
+            <TextInput
+              style={styles.numeric}
+              autoCapitalize="none"
+              keyboardType="decimal-pad"
+              placeholder="line number"
+              defaultValue={lineInfoForLine != null ? String(lineInfoForLine) : ''}
+              onEndEditing={this.setLineInfoForLine}
+            />
+          </View>
           <View style={styles.lastRow}>
             <Text style={styles.statusText}>{layoutStat}</Text>
             <Text style={styles.statusText}>{infoStat}</Text>
           </View>
 
           <View style={styles.buttonBar}>
-            <Button outline={!IOS} text="Text" onPress={this.promptForText} />
-            <Button outline={!IOS} text="Width" onPress={this.promptForWidth} />
-            <Button outline={!IOS} text="Info" onPress={this.showFontInfo} />
-            <Button outline={!IOS} text="Test" onPress={this.doTestHeights} />
+            <Button outline={!IOS} disabled={testing} text="Text" onPress={this.promptForText} />
+            <Button outline={!IOS} disabled={testing} text="Font Info" onPress={this.showFontInfo} />
+            <Button outline={!IOS} disabled={testing} text="Test" onPress={this.doTestHeights} />
           </View>
 
           {/*
@@ -411,6 +441,15 @@ export default class MeasureApp extends React.Component<Props, State> {
         </ScrollView>
 
         <FontInfo visible={!!fontInfo} font={fontInfo} onClose={this.onInfoClose} />
+        {testing &&
+          <View style={styles.spinnerBox}>
+            <ActivityIndicator
+              animating={true}
+              size="large"
+              style={styles.spinner}
+            />
+          </View>
+        }
       </SafeAreaView>
     )
   }
@@ -496,5 +535,20 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 12,
     marginRight: 4,
+  },
+  spinnerBox: {
+    position: 'absolute',
+    left: 0,
+    width: '100%',
+    top: 120,
+    alignItems: 'center',
+  },
+  spinner: {
+    backgroundColor: 'white',
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 25,
+    elevation: 6,
   },
 })

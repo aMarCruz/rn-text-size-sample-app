@@ -186,9 +186,6 @@ module.exports = {
       files: ['*.test.js', '__test__/*.js'],
       env: {
         jest: YES,
-      },
-      rules: {
-        'no-console': OFF,
       }
     }
   ]
