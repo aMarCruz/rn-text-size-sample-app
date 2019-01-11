@@ -9,6 +9,7 @@
 
 ### Removed
 
+- react-lifecycles-compat
 - ins-text-size script
 
 ## \[1.0.3] - 2018-08-20

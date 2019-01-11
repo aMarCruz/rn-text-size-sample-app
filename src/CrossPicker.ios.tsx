@@ -1,6 +1,5 @@
 import React from 'react'
 import { ActionSheetIOS, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import { polyfill } from 'react-lifecycles-compat'
 import { defaultFontSize, borderColor } from './constants'
 
 // typings
@@ -110,5 +109,4 @@ const styles = StyleSheet.create({
   },
 })
 
-polyfill(CrossPicker)
 export { CrossPicker }
